@@ -545,7 +545,139 @@ set foldtext=MyFoldText()
 setlocal fillchars=|,
 
 endif " if !exists("loaded_vimoutliner_functions")
+
+" Set location of vo_tags.tag
+let vo_tagfile = expand('$HOME').'/.vimoutliner/vo_tags.tag'
+if glob(fnamemodify(vo_tagfile,':h')) == ''
+	let vo_tagfile = expand("<sfile>:p:h:h").'/vimoutliner/vo_tags.tag'
+endif
+
+" s:MakeTags(file) {{{2
+" Create tags file
+function! s:MakeTags(file)
+	echom 'Creating tags file...'
+	let file = s:DeriveAbsoluteFileName(getcwd().'/', expand(a:file))
+	let g:processedFiles = []
+	call delete(g:vo_tagfile)
+	let g:alltags = []
+	call add(g:processedFiles, file)
+	call s:ProcessOutline(file)
+	call filter(sort(g:alltags), 'count(g:alltags, v:val) == 1')
+	call writefile(g:alltags, g:vo_tagfile)
+	unlet g:processedFiles
+	unlet g:alltags
+	redraw
+	echom 'Tags file created.'
+endfunction
+"}}}2
+
+" s:ProcessOutline(file) {{{2
+" Look for tags in all linked files
+function! s:ProcessOutline(file)
+	let file = simplify(fnamemodify(expand(a:file),':p'))
+	let baseDir = fnamemodify(file, ':p:h')
+	let dirconfirm = 0
+	if glob(baseDir) == ''
+		if exists('*confirm')
+			let dirconfirm = confirm('The linked file "'.file.'" and one or more directories don''t exist on, do you want to create them now?', "&Yes\n&No", '2', 'Question')
+		else
+			let dirconfirm = 1
+		endif
+		if dirconfirm == 1
+			" Create dir(s):
+			if exists('*mkdir')
+				call mkdir(baseDir,'p')
+			elseif executable('mkdir')
+				call system('`which mkdir` -p '.baseDir)
+			else
+				" What to do here? inform the user of something?
+				return
+			endif
+			echom 'Created dir: '.baseDir
+		else
+			return
+		endif
+	endif
+	if glob(file) == ''
+		if exists('*confirm') && dirconfirm == 0
+			let confirm = confirm('The linked file "'.file.'" doesn''t exist, do you want to create it now?', "&Yes\n&No", '2', 'Question')
+		else
+			let confirm = 1
+		endif
+		if confirm == 1
+			call writefile([], file)
+		else
+			return
+		endif
+	endif
+	echom 'Begin processing file '.file.'.'
+	let tags = s:GetTagsFromFile(file)
+	for tag in tags
+		let taglist = split(tag, "\t")
+		let tagkey  = taglist[0]
+		let tagpath = expand(taglist[1])
+		if tagpath !~ '^/'
+			let tagpath = s:DeriveAbsoluteFileName(baseDir, tagpath)
+		endif
+		call add(g:alltags, tagkey."\t".tagpath."\t:1")
+		if index(g:processedFiles, tagpath) == -1
+			call add(g:processedFiles, tagpath)
+			call s:ProcessOutline(tagpath)
+		endif
+	endfor
+endfunction
+" }}}2
+
+" s:GetTagsFromFile(path) {{{2
+" Extract tags
+function! s:GetTagsFromFile(path)
+	try
+	  let lines = readfile(a:path)
+	catch '/E484/'
+		echoerr 'Error in vo_maketags.vim, couldn''t read file: ' . a:path
+		return []
+	endtry
+
+	call map(lines, 'v:val =~# ''^\s*_tag_\S\+'' ? substitute(v:val, ''^\s*\(_tag_\S\+\).*$'', ''\1'', "")."\t".substitute(get(lines, index(lines, v:val) + 1),''^\s*'',"","") : v:val')
+	call filter(lines, 'v:val =~# ''^_tag_\S\+\t\S''')
+	return lines
+endfunction
+" }}}2
+
+" s:DeriveAbsoluteFileName(baseDir, fileName) {{{2
+" Guess an absolute path
+function! s:DeriveAbsoluteFileName(baseDir, fileName)
+	let baseDir = a:baseDir
+	if baseDir !~ '/$'
+		let baseDir = baseDir . '/'
+	endif
+	if a:fileName =~ '^/'
+		let absFileName = a:fileName
+	else
+		let absFileName = baseDir . a:fileName
+	endif
+
+	let absFileName = substitute(absFileName, '/\./', '/', 'g')
+	while absFileName =~ '/\.\./'
+		absFileName = substitute(absFileName, '/[^/]*\.\./', '', '')
+	endwhile
+	return absFileName
+endfunction
+" }}}2
+
+silent! function s:OpenTag()
+	try
+		normal! 
+	catch /E426/
+		call s:MakeTags(expand('%'))
+		normal! 
+	endtry
+	return ''
+endfunction
+
 " End Vim Outliner Functions
+
+command! -bar VOUpdateTags call <SID>MakeTags(expand('%'))
 
 " Vim Outliner Key Mappings {{{1
 " insert the date
@@ -587,7 +719,11 @@ else
 endif
 
 " Steve's additional mappings start here
-map <buffer>   <C-K>         <C-]>
+noremap <buffer>   <Plug>VO_OpenTag     :call <SID>OpenTag()<CR>
+if !hasmapto('<Plug>VO_OpenTag')
+	map <unique> <buffer>   <C-]>         <Plug>VO_OpenTag
+	map <unique> <buffer>   <C-K>         <Plug>VO_OpenTag
+endif
 map <buffer>   <C-N>         <C-T>
 map <buffer>   <localleader>0           :set foldlevel=99999<CR>
 map <buffer>   <localleader>9           :set foldlevel=8<CR>
@@ -650,7 +786,7 @@ endif
 "}}}1
 
 " this command needs to be run every time so Vim doesn't forget where to look
-setlocal tags^=$HOME/.vimoutliner/vo_tags.tag
+exec 'setlocal tags^='.g:vo_tagfile
 
 " Added an indication of current syntax as per Dillon Jones' request
 let b:current_syntax = "outliner"
