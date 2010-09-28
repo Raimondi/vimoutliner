@@ -63,6 +63,8 @@
 "let b:did_ftplugin = 1
 let b:current_syntax = "outliner"
 
+let s:from_home = glob(expand('$HOME').'/.vimoutliner') != ''
+
 " User Preferences {{{1
 
 let maplocalleader = ",,"		" this is prepended to VO key mappings
@@ -548,7 +550,7 @@ endif " if !exists("loaded_vimoutliner_functions")
 
 " Set location of vo_tags.tag
 let vo_tagfile = expand('$HOME').'/.vimoutliner/vo_tags.tag'
-if glob(fnamemodify(vo_tagfile,':h')) == ''
+if !s:from_home
 	let vo_tagfile = expand("<sfile>:p:h:h").'/vimoutliner/vo_tags.tag'
 endif
 
@@ -677,7 +679,7 @@ endfunction
 
 " End Vim Outliner Functions
 
-command! -bar VOUpdateTags call <SID>MakeTags(expand('%'))
+command! -bar -buffer VOUpdateTags call <SID>MakeTags(expand('%'))
 
 " Vim Outliner Key Mappings {{{1
 " insert the date
@@ -792,20 +794,27 @@ exec 'setlocal tags^='.g:vo_tagfile
 let b:current_syntax = "outliner"
 
 " Personal configuration options files as per Matej Cepl
-setlocal runtimepath+=$HOME/.vimoutliner,$HOME
+if s:from_home
+	setlocal runtimepath+=$HOME/.vimoutliner,$HOME
+endif
 ru! .vimoutlinerrc vimoutlinerrc
 " More sophisticated version of the modules loading; thanks to Preben 'Peppe'
 " Guldberg for telling me how to split string and make semi-lists with vim.
 " - Matej Cepl
 let s:tmp = g:vo_modules_load . ':'
 let s:idx = stridx(s:tmp, ':')
+if s:from_home
+	let s:pluginsdir = 'plugins'
+else
+	let s:pluginsdir = 'vimoutliner/plugins'
+endif
 
 while (s:idx != -1)
 	let s:part = strpart(s:tmp, 0, s:idx)
 	let s:tmp = strpart(s:tmp, s:idx + 1)
 	let s:idx = stridx(s:tmp, ':')
 	"exec 'ru! ftplugin/vo_' . part . '.vim'
-	exec "runtime! plugins/vo_" . s:part . ".vim"
+	exec "runtime! " . s:pluginsdir . "/vo_" . s:part . ".vim"
 endwhile
 
 " The End
