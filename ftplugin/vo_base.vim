@@ -551,6 +551,7 @@ endif " if !exists("loaded_vimoutliner_functions")
 " Set location of vo_tags.tag
 let vo_tagfile = expand('$HOME').'/.vimoutliner/vo_tags.tag'
 if !s:from_home
+	" Where should the tags file be placed by defaul? $HOME?
 	let vo_tagfile = expand("<sfile>:p:h:h").'/vimoutliner/vo_tags.tag'
 endif
 
@@ -670,7 +671,7 @@ endfunction
 silent! function s:OpenTag()
 	try
 		normal! 
-	catch /E426/
+	catch /E426\|E433/
 		call s:MakeTags(expand('%'))
 		normal! 
 	endtry
