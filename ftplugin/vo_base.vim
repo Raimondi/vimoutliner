@@ -27,13 +27,13 @@
 "#      Set of outliner friendly settings
 "# Steve Litt, 5/28/2001
 "# End of version 0.1.0
-"# 
+"#
 "#  V0.1.1 Pre-alpha
 "#      No change
-"# 
+"#
 "# Steve Litt, 5/28/2001
 "# End of version 0.1.1
-"# 
+"#
 "#  V0.1.2 Pre-alpha
 "# 	No Change
 "# Steve Litt, 5/30/2001
@@ -42,16 +42,16 @@
 "# 	No Change
 "# Steve Litt, 5/30/2001
 "# End of version 0.1.3
-"#  V0.2.0 
+"#  V0.2.0
 "# 	Noel Henson adds code for outliner-friendly expand and
 "# 	collapse, comma comma commands, color coding, hooks for a
 "# 	spellchecker, sorting, and date insertion.
 "# Noel Henson, 11/24/2002
 "# End of version 0.2.0
-"# 
+"#
 "# All other history in the CHANGES file.
 "# END OF HISTORY
-"# 
+"#
 "#########################################################################
 
 
@@ -75,14 +75,14 @@ let use_space_colon=0
 " End User Preferences
 
 " VimOutliner Standard Settings {{{1
-setlocal autoindent	
+setlocal autoindent
 setlocal backspace=2
 setlocal wrapmargin=5
 setlocal wrap!
 setlocal tw=78
 setlocal noexpandtab
 setlocal nosmarttab
-setlocal softtabstop=0 
+setlocal softtabstop=0
 setlocal foldlevel=20
 setlocal foldcolumn=1		" turns on "+" at the begining of close folds
 setlocal tabstop=4			" tabstop and shiftwidth must match
@@ -98,7 +98,7 @@ setlocal iskeyword=@,39,45,48-57,_,129-255
 if !exists("loaded_vimoutliner_functions")
 let loaded_vimoutliner_functions=1
 
-" Sorting {{{2 
+" Sorting {{{2
 " IsParent(line) {{{3
 " Return 1 if this line is a parent
 function! IsParent(line)
@@ -198,7 +198,7 @@ endfunction
 " Sort1Line(line) {{{3
 " Compare this heading and the next and swap if out of order
 " Dir is 0 for forward, 1 for reverse
-" Return a 1 if a change was made 
+" Return a 1 if a change was made
 function! Sort1Line(line,dir)
 	if (CompHead(a:line) == -1) && (a:dir == 0)
 		call DelHead(a:line)
@@ -229,7 +229,7 @@ endfunction
 "}}}3
 " Sort(start,end,dir) {{{3
 " Sort this range of headings
-" dir: 0 = ascending, 1 = decending 
+" dir: 0 = ascending, 1 = decending
 function! SortRange(fstart,fend,dir)
 	let l:changed = 1
 	while l:changed != 0
@@ -238,8 +238,8 @@ function! SortRange(fstart,fend,dir)
 endfunction
 "}}}3
 " SortChildren(dir) {{{3
-" Sort the children of a parent 
-" dir: 0 = ascending, 1 = decending 
+" Sort the children of a parent
+" dir: 0 = ascending, 1 = decending
 function! SortChildren(dir)
 	let l:oldcursor = line(".")
 	let l:fstart = FindParent(line("."))
@@ -336,12 +336,12 @@ function MyFoldText()
 	endif
 	let l:sub = substitute(l:line,'\t',l:MySpaces,'g')
 	let l:len = strlen(l:sub)
-	let l:sub = l:sub . " " . MakeDashes(58 - l:len) 
+	let l:sub = l:sub . " " . MakeDashes(58 - l:len)
 	let l:sub = l:sub . " (" . ((v:foldend + l:bodyTextFlag)- v:foldstart)
 	if ((v:foldend + l:bodyTextFlag)- v:foldstart) == 1
-		let l:sub = l:sub . " line)" 
+		let l:sub = l:sub . " line)"
 	else
-		let l:sub = l:sub . " lines)" 
+		let l:sub = l:sub . " lines)"
 	endif
 	return l:sub
 endfunction
@@ -542,7 +542,7 @@ endif
 " within the same buffer. Using :e has demonstrates this.
 set foldtext=MyFoldText()
 
-setlocal fillchars=|, 
+setlocal fillchars=|,
 
 endif " if !exists("loaded_vimoutliner_functions")
 " End Vim Outliner Functions
@@ -575,15 +575,15 @@ imap <buffer> <localleader>- ----------------------------------------<cr>
 
 " switch document between the two types of bodytext styles
 if use_space_colon == 1
-  "   First, convert document to the marker style
-  map <localleader>b :%s/\(^\t*\) :/\1/e<cr>:%s/\(^\t*\) /\1 : /e<cr>:let @/=""<cr>
-  "   Now, convert document to the space style
-  map <localleader>B :%s/\(^\t*\) :/\1/e<cr>:let @/=""<cr>
+	"   First, convert document to the marker style
+	map <localleader>b :%s/\(^\t*\) :/\1/e<cr>:%s/\(^\t*\) /\1 : /e<cr>:let @/=""<cr>
+	"   Now, convert document to the space style
+	map <localleader>B :%s/\(^\t*\) :/\1/e<cr>:let @/=""<cr>
 else
-  "   First, convert document to the marker style
-  map <localleader>b :%s/\(^\t*\):/\1/e<cr>:%s/\(^\t*\) /\1: /e<cr>:let @/=""<cr>
-  "   Now, convert document to the space style
-  map <localleader>B :%s/\(^\t*\):/\1/e<cr>:let @/=""<cr>
+	"   First, convert document to the marker style
+	map <localleader>b :%s/\(^\t*\):/\1/e<cr>:%s/\(^\t*\) /\1: /e<cr>:let @/=""<cr>
+	"   Now, convert document to the space style
+	map <localleader>B :%s/\(^\t*\):/\1/e<cr>:let @/=""<cr>
 endif
 
 " Steve's additional mappings start here
@@ -654,7 +654,7 @@ setlocal tags^=$HOME/.vimoutliner/vo_tags.tag
 
 " Added an indication of current syntax as per Dillon Jones' request
 let b:current_syntax = "outliner"
- 
+
 " Personal configuration options files as per Matej Cepl
 setlocal runtimepath+=$HOME/.vimoutliner,$HOME
 ru! .vimoutlinerrc vimoutlinerrc
@@ -665,11 +665,11 @@ let s:tmp = g:vo_modules_load . ':'
 let s:idx = stridx(s:tmp, ':')
 
 while (s:idx != -1)
-    let s:part = strpart(s:tmp, 0, s:idx)
-    let s:tmp = strpart(s:tmp, s:idx + 1)
-    let s:idx = stridx(s:tmp, ':')
-    "exec 'ru! ftplugin/vo_' . part . '.vim'
-    exec "runtime! plugins/vo_" . s:part . ".vim"
+	let s:part = strpart(s:tmp, 0, s:idx)
+	let s:tmp = strpart(s:tmp, s:idx + 1)
+	let s:idx = stridx(s:tmp, ':')
+	"exec 'ru! ftplugin/vo_' . part . '.vim'
+	exec "runtime! plugins/vo_" . s:part . ".vim"
 endwhile
 
 " The End
