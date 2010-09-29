@@ -673,6 +673,7 @@ silent! function s:OpenTag()
 		normal! 
 	catch /E426\|E433/
 		call s:MakeTags(expand('%'))
+		redraw
 		normal! 
 	endtry
 	return ''
