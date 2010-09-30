@@ -669,12 +669,21 @@ endfunction
 " }}}2
 
 silent! function s:OpenTag()
+let retry = 0
 	try
 		normal! 
 	catch /E426\|E433/
 		call s:MakeTags(expand('%'))
+		let retry = 1
 		redraw
+	endtry
+	if !retry
+		return ''
+	endif
+	try
 		normal! 
+	catch /E426\|E433/
+		echoh ErrorMsg | echom substitute(v:exception,'^Vim(tag):','','') | echoh None
 	endtry
 	return ''
 endfunction
