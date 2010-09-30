@@ -546,8 +546,6 @@ set foldtext=MyFoldText()
 
 setlocal fillchars=|,
 
-endif " if !exists("loaded_vimoutliner_functions")
-
 " Set location of vo_tags.tag
 let vo_tagfile = expand('$HOME').'/.vimoutliner/vo_tags.tag'
 if !s:from_home
@@ -573,7 +571,6 @@ function! s:MakeTags(file)
 	echom 'Tags file created.'
 endfunction
 "}}}2
-
 " s:ProcessOutline(file) {{{2
 " Look for tags in all linked files
 function! s:ProcessOutline(file)
@@ -630,7 +627,6 @@ function! s:ProcessOutline(file)
 	endfor
 endfunction
 " }}}2
-
 " s:GetTagsFromFile(path) {{{2
 " Extract tags
 function! s:GetTagsFromFile(path)
@@ -646,7 +642,6 @@ function! s:GetTagsFromFile(path)
 	return lines
 endfunction
 " }}}2
-
 " s:DeriveAbsoluteFileName(baseDir, fileName) {{{2
 " Guess an absolute path
 function! s:DeriveAbsoluteFileName(baseDir, fileName)
@@ -667,8 +662,9 @@ function! s:DeriveAbsoluteFileName(baseDir, fileName)
 	return absFileName
 endfunction
 " }}}2
-
-silent! function s:OpenTag()
+" s:OpenTag() {{{2
+" Handle non existant tags or tags file.
+function s:OpenTag()
 let retry = 0
 	try
 		normal! 
@@ -691,6 +687,9 @@ let retry = 0
 	endtry
 	return ''
 endfunction
+" }}}2
+
+endif " if !exists("loaded_vimoutliner_functions")
 
 " End Vim Outliner Functions
 
