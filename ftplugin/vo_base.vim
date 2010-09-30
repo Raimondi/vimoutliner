@@ -673,6 +673,7 @@ let retry = 0
 	try
 		normal! 
 	catch /E426\|E433/
+		" Build tags file if it or the tag doesn't exist.
 		call s:MakeTags(expand('%'))
 		let retry = 1
 		redraw
@@ -683,7 +684,10 @@ let retry = 0
 	try
 		normal! 
 	catch /E426\|E433/
-		echoh ErrorMsg | echom substitute(v:exception,'^Vim(tag):','','') | echoh None
+		" Avoid reporting that the error ocurred inside this function.
+		echoh ErrorMsg
+		echom substitute(v:exception,'^Vim(.\{-}):','','')
+		echoh None
 	endtry
 	return ''
 endfunction
