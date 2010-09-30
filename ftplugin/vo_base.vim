@@ -90,7 +90,7 @@ setlocal foldcolumn=1		" turns on "+" at the begining of close folds
 setlocal tabstop=4			" tabstop and shiftwidth must match
 setlocal shiftwidth=4		" values from 2 to 8 work well
 setlocal foldmethod=expr
-setlocal foldexpr=MyFoldLevel(v:lnum)
+setlocal foldexpr=VO_FoldLevel(v:lnum)
 setlocal indentexpr=
 setlocal nocindent
 setlocal iskeyword=@,39,45,48-57,_,129-255
@@ -287,9 +287,9 @@ function MakeDashes(count)
 	return MakeChars(a:count,"-")
 endfunction
 "}}}2
-" MyFoldText() {{{2
+" VO_FoldText() {{{2
 " Create string used for folded text blocks
-function MyFoldText()
+function VO_FoldText()
 	let l:MySpaces = MakeSpaces(&sw)
 	let l:line = getline(v:foldstart)
 	let l:bodyTextFlag=0
@@ -447,9 +447,9 @@ function! PreformattedTable(line)
 	return (match(getline(a:line),"^\t*|") == 0)
 endfunction
 "}}}2
-" MyFoldLevel(Line) {{{2
+" VO_FoldLevel(Line) {{{2
 " Determine the fold level of a line.
-function MyFoldLevel(line)
+function VO_FoldLevel(line)
 	let l:myindent = Ind(a:line)
 	let l:nextindent = Ind(a:line+1)
 
@@ -542,7 +542,7 @@ endif
 "}}}2
 " This should be a setlocal but that doesn't work when switching to a new .otl file
 " within the same buffer. Using :e has demonstrates this.
-set foldtext=MyFoldText()
+set foldtext=VO_FoldText()
 
 setlocal fillchars=|,
 
