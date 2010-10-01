@@ -63,7 +63,15 @@
 "let b:did_ftplugin = 1
 let b:current_syntax = "outliner"
 
+" Detect if $HOME/.vimoutliner is in use
 let s:from_home = glob(expand('$HOME').'/.vimoutliner') != ''
+
+" Set location of vo_tags.tag
+let vo_tagfile = expand('$HOME').'/.vimoutliner/vo_tags.tag'
+if !s:from_home
+	" Where should the tags file be placed by defaul? $HOME?
+	let vo_tagfile = expand("<sfile>:p:h:h").'/vimoutliner/vo_tags.tag'
+endif
 
 " User Preferences {{{1
 
@@ -261,7 +269,6 @@ function! SortChildren(dir)
 	call cursor(l:oldcursor,0)
 endfunction
 "}}}3
-"}}}2
 " MakeChars() {{{2
 " Make a string of characters
 " Used for strings of repeated characters
@@ -540,20 +547,8 @@ function Spawn()
 endfunction
 endif
 "}}}2
-" This should be a setlocal but that doesn't work when switching to a new .otl file
-" within the same buffer. Using :e has demonstrates this.
-set foldtext=VO_FoldText()
-
-setlocal fillchars=|,
-
-" Set location of vo_tags.tag
-let vo_tagfile = expand('$HOME').'/.vimoutliner/vo_tags.tag'
-if !s:from_home
-	" Where should the tags file be placed by defaul? $HOME?
-	let vo_tagfile = expand("<sfile>:p:h:h").'/vimoutliner/vo_tags.tag'
-endif
-
-" s:MakeTags(file) {{{2
+" Tags {{{2
+" s:MakeTags(file) {{{3
 " Create tags file
 function! s:MakeTags(file)
 	echom 'Creating tags file...'
@@ -570,8 +565,8 @@ function! s:MakeTags(file)
 	redraw
 	echom 'Tags file created.'
 endfunction
-"}}}2
-" s:ProcessOutline(file) {{{2
+"}}}3
+" s:ProcessOutline(file) {{{3
 " Look for tags in all linked files
 function! s:ProcessOutline(file)
 	let file = simplify(fnamemodify(expand(a:file),':p'))
@@ -626,8 +621,8 @@ function! s:ProcessOutline(file)
 		endif
 	endfor
 endfunction
-" }}}2
-" s:GetTagsFromFile(path) {{{2
+" }}}3
+" s:GetTagsFromFile(path) {{{3
 " Extract tags
 function! s:GetTagsFromFile(path)
 	try
@@ -641,8 +636,8 @@ function! s:GetTagsFromFile(path)
 	call filter(lines, 'v:val =~# ''^_tag_\S\+\t\S''')
 	return lines
 endfunction
-" }}}2
-" s:DeriveAbsoluteFileName(baseDir, fileName) {{{2
+" }}}3
+" s:DeriveAbsoluteFileName(baseDir, fileName) {{{3
 " Guess an absolute path
 function! s:DeriveAbsoluteFileName(baseDir, fileName)
 	let baseDir = a:baseDir
@@ -661,9 +656,9 @@ function! s:DeriveAbsoluteFileName(baseDir, fileName)
 	endwhile
 	return absFileName
 endfunction
-" }}}2
-" s:OpenTag() {{{2
-" Handle non existant tags or tags file.
+" }}}3
+" s:OpenTag() {{{3
+" Handle missing tags or tags file.
 function s:OpenTag()
 let retry = 0
 	try
@@ -680,14 +675,21 @@ let retry = 0
 	try
 		normal! 
 	catch /E426\|E433/
-		" Avoid reporting that the error ocurred inside this function.
+		" Prevent reporting that the error ocurred inside this function.
 		echoh ErrorMsg
 		echom substitute(v:exception,'^Vim(.\{-}):','','')
 		echoh None
 	endtry
 	return ''
 endfunction
+" }}}3
 " }}}2
+
+" This should be a setlocal but that doesn't work when switching to a new .otl file
+" within the same buffer. Using :e has demonstrates this.
+set foldtext=VO_FoldText()
+
+setlocal fillchars=|,
 
 endif " if !exists("loaded_vimoutliner_functions")
 
@@ -735,6 +737,8 @@ else
 endif
 
 " Steve's additional mappings start here
+
+" Handle missing tags or tags file.
 noremap <buffer>   <Plug>VO_OpenTag     :call <SID>OpenTag()<CR>
 if !hasmapto('<Plug>VO_OpenTag')
 	map <unique> <buffer>   <C-]>         <Plug>VO_OpenTag
@@ -817,6 +821,7 @@ ru! .vimoutlinerrc vimoutlinerrc
 " - Matej Cepl
 let s:tmp = g:vo_modules_load . ':'
 let s:idx = stridx(s:tmp, ':')
+" Where to look for plug-ins.
 if s:from_home
 	let s:pluginsdir = 'plugins'
 else
