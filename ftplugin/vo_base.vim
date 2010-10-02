@@ -632,7 +632,7 @@ function! s:GetTagsFromFile(path)
 		return []
 	endtry
 
-	call map(lines, 'v:val =~# ''^\s*_tag_\S\+'' ? substitute(v:val, ''^\s*\(_tag_\S\+\).*$'', ''\1'', "")."\t".substitute(get(lines, index(lines, v:val) + 1),''^\s*'',"","") : v:val')
+	call map(lines, 'v:val =~# ''^\s*_tag_\S\+'' ? substitute(v:val, ''^\s*\(_tag_\S\+\).*$'', ''\1'', "")."\t".substitute(get(lines, index(lines, v:val) + 1, ""),''^\s*'',"","") : v:val')
 	call filter(lines, 'v:val =~# ''^_tag_\S\+\t\S''')
 	return lines
 endfunction
