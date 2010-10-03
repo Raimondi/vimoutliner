@@ -675,27 +675,27 @@ endfunction
 function s:OpenTag()
 	let retry = 0
 	" Ask for a file name if one is not found.
-	if getline('.') =~# '^\s*_tag_\S\+' &&
-				\ ( line('.') == line('$') ||
-				\ indent('.') >= indent(line('.') + 1 ) ||
-				\ match(getline(line('.') + 1), '^\s*.\+\.otl\s*$') == -1)
-		call inputsave()
-		let input = input('Linked outline: ', '', 'file')
-		call inputrestore()
-		if input == ''
-			return ''
-		endif
-		let path = substitute(input, '^\s*\(.\{-1,}\)\s*$', '\1', '')
-		"if path !~ '\.otl$'
-			"let path = path.'.otl'
+	"if getline('.') =~# '^\s*_tag_\S\+' &&
+				"\ ( line('.') == line('$') ||
+				"\ indent('.') >= indent(line('.') + 1 ) ||
+				"\ match(getline(line('.') + 1), '^\s*.\+\.otl\s*$') == -1)
+		"call inputsave()
+		"let input = input('Linked outline: ', '', 'file')
+		"call inputrestore()
+		"if input == ''
+			"return ''
 		"endif
-		call append(line('.'), path)
-		let line = line('.')
-		let indent = indent(line)
-		while indent >= indent(line + 1)
-			call setline(line + 1, (&expandtab ? " " : "\t").getline(line + 1))
-		endwhile
-	endif
+		"let path = substitute(input, '^\s*\(.\{-1,}\)\s*$', '\1', '')
+		""if path !~ '\.otl$'
+			""let path = path.'.otl'
+		""endif
+		"call append(line('.'), path)
+		"let line = line('.')
+		"let indent = indent(line)
+		"while indent >= indent(line + 1)
+			"call setline(line + 1, (&expandtab ? " " : "\t").getline(line + 1))
+		"endwhile
+	"endif
 
 	try
 		normal! 
