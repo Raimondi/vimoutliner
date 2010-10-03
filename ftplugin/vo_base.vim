@@ -673,10 +673,34 @@ endfunction
 " s:OpenTag() {{{3
 " Handle missing tags or tags file.
 function s:OpenTag()
-let retry = 0
+	let retry = 0
+	" Ask for a file name if one is not found.
+	if getline('.') =~# '^\s*_tag_\S\+' &&
+				\ ( line('.') == line('$') ||
+				\ indent('.') >= indent(line('.') + 1 ) ||
+				\ match(getline(line('.') + 1), '^\s*.\+\.otl\s*$') == -1)
+		call inputsave()
+		let input = input('Linked outline: ', '', 'file')
+		call inputrestore()
+		if input == ''
+			echom 'Can not use an empty string.'
+			return ''
+		endif
+		let path = substitute(input, '^\s*\(.\{-1,}\)\s*$', '\1', '')
+		if path !~ '\.otl$'
+			let path = path.'.otl'
+		endif
+		call append(line('.'), path)
+		let line = line('.')
+		let indent = indent(line)
+		while indent >= indent(line + 1)
+			call setline(line + 1, (&expandtab ? " " : "\t").getline(line + 1))
+		endwhile
+	endif
+
 	try
 		normal! 
-	catch /E426\|E433/
+	catch /E429\|E426\|E433/
 		" Build tags file if it or the tag doesn't exist.
 		call s:MakeTags(expand('%'))
 		let retry = 1
@@ -687,13 +711,15 @@ let retry = 0
 	endif
 	try
 		normal! 
-	catch /E426\|E433/
+	catch /E429\|E426\|E433/
 		" Prevent reporting that the error ocurred inside this function.
 		echoh ErrorMsg
 		echom substitute(v:exception,'^Vim(.\{-}):','','')
 		echoh None
 	endtry
 	return ''
+
+
 endfunction
 " }}}3
 " }}}2
