@@ -625,12 +625,25 @@ endfunction
 " s:GetTagsFromFile(path) {{{3
 " Extract tags
 function! s:GetTagsFromFile(path)
-	try
-	  let lines = readfile(a:path)
-	catch '/E484/'
-		echoerr 'Error in vo_maketags.vim, couldn''t read file: ' . a:path
-		return []
-	endtry
+	" Don't readfile() a loaded buffer if it has unsaved changes.
+	if bufloaded(a:path) && getbufvar(a:path, '&modified')
+		let pos_save = getpos('.')
+		let reg_save = @a
+		let search_save = @/
+		exec "b ".a:path
+		g/./y A
+		let lines = split(@a, "\n")
+		let @/ = search_save
+		let @a = reg_save
+		call setpos('.', pos_save)
+	else
+		try
+			let lines = readfile(a:path)
+		catch '/E484/'
+			echoerr 'Error in vo_maketags.vim, couldn''t read file: ' . a:path
+			return []
+		endtry
+	endif
 
 	call map(lines, 'v:val =~# ''^\s*_tag_\S\+'' ? substitute(v:val, ''^\s*\(_tag_\S\+\).*$'', ''\1'', "")."\t".substitute(get(lines, index(lines, v:val) + 1, ""),''^\s*'',"","") : v:val')
 	call filter(lines, 'v:val =~# ''^_tag_\S\+\t\S''')
