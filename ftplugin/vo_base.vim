@@ -683,13 +683,12 @@ function s:OpenTag()
 		let input = input('Linked outline: ', '', 'file')
 		call inputrestore()
 		if input == ''
-			echom 'Can not use an empty string.'
 			return ''
 		endif
 		let path = substitute(input, '^\s*\(.\{-1,}\)\s*$', '\1', '')
-		if path !~ '\.otl$'
-			let path = path.'.otl'
-		endif
+		"if path !~ '\.otl$'
+			"let path = path.'.otl'
+		"endif
 		call append(line('.'), path)
 		let line = line('.')
 		let indent = indent(line)
