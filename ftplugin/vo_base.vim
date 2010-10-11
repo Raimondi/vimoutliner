@@ -275,7 +275,7 @@ endfunction
 " MakeChars() {{{2
 " Make a string of characters
 " Used for strings of repeated characters
-function MakeChars(count,char)
+function! MakeChars(count,char)
 	let i = 0
 	let l:chars=""
 	while i < a:count
@@ -287,19 +287,19 @@ endfunction
 "}}}2
 " MakeSpaces() {{{2
 " Make a string of spaces
-function MakeSpaces(count)
+function! MakeSpaces(count)
 	return MakeChars(a:count," ")
 endfunction
 "}}}2
 " MakeDashes() {{{2
 " Make a string of dashes
-function MakeDashes(count)
+function! MakeDashes(count)
 	return MakeChars(a:count,"-")
 endfunction
 "}}}2
 " VO_FoldText() {{{2
 " Create string used for folded text blocks
-function VO_FoldText()
+function! VO_FoldText()
 	let l:MySpaces = MakeSpaces(&sw)
 	let l:line = getline(v:foldstart)
 	let l:bodyTextFlag=0
@@ -360,7 +360,7 @@ endfunction
 "}}}2
 " InsertDate() {{{2
 " Insert today's date.
-function InsertDate(ba)
+function! InsertDate(ba)
 	let @x = strftime("%Y-%m-%d")
 	if a:ba == "0"
 		normal! "xp
@@ -371,7 +371,7 @@ endfunction
 "}}}2
 " InsertSpaceDate() {{{2
 " Insert a space, then today's date.
-function InsertSpaceDate()
+function! InsertSpaceDate()
 	let @x = " "
 	let @x = @x . strftime("%Y-%m-%d")
 	normal! "xp
@@ -379,7 +379,7 @@ endfunction
 "}}}2
 " InsertTime() {{{2
 " Insert the time.
-function InsertTime(ba)
+function! InsertTime(ba)
 	let @x = strftime("%T")
 	if a:ba == "0"
 		normal! "xp
@@ -390,7 +390,7 @@ endfunction
 "}}}2
 " InsertSpaceTime() {{{2
 " Insert a space, then the time.
-function InsertSpaceTime()
+function! InsertSpaceTime()
 	let @x = " "
 	let @x = @x . strftime("%T")
 	normal! "xp
@@ -459,7 +459,7 @@ endfunction
 "}}}2
 " VO_FoldLevel(Line) {{{2
 " Determine the fold level of a line.
-function VO_FoldLevel(line)
+function! VO_FoldLevel(line)
 	let l:myindent = Ind(a:line)
 	let l:nextindent = Ind(a:line+1)
 
@@ -537,7 +537,7 @@ endfunction
 " Courtesy of Steve Litt
 if !exists("loaded_steveoutliner_functions")
 	let loaded_steveoutliner_functions=1
-function Spawn()
+function! Spawn()
 		let theline=getline(line("."))
 		let idx=matchend(theline, "_exe_\\s*")
 		if idx == -1
