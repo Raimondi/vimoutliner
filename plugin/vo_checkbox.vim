@@ -151,6 +151,9 @@
 "Revision 1.2  2003/07/07 14:14:02  noel
 "Added appropriate headers.
 "}}}1
+if &filetype != 'vo_base'
+	finish
+endif
 " InsertCheckBox() {{{1
 " Insert a checkbox at the beginning of a header without disturbing the
 " current folding.

@@ -1,3 +1,6 @@
+if &filetype != 'vo_base'
+	finish
+endif
 function! IsParent(line)
 	if a:line == line("$")
 		return 0

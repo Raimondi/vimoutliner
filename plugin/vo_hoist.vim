@@ -57,6 +57,9 @@
 "}}}2
 
 " Load the plugin {{{1
+if &filetype != 'vo_base'
+	finish
+endif
 " mappings {{{1
 map <silent> <buffer> <localleader>h :call Hoist(line("."))<cr>
 map <silent> <buffer> <localleader>H :call DeHoistThis(line("."))<cr>
