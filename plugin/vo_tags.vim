@@ -60,19 +60,21 @@ function s:follow_link()
 	endif
 	" Split line.
 	let line2 = getline(line('.') + 1)
-	let line2 = substitute(line2, '^\s*\(\S.*\)\s*$','\1','')
-	let file = substitute(line2, '^\(.\{-}\)\(:\d\+\)\{0,2}$','\1','')
+	" The following pattern is very magic.
+	let [_,file,row,col,_,_,_,_,_,_] = matchlist(line2, '\v^\s*([^:]+)%(:(\d+))?%(:(\d+))?$')
+	"let line2 = substitute(line2, '^\s*\(\S.*\)\s*$','\1','')
+	"let file = substitute(line2, '^\(.\{-}\)\(:\d\+\)\{0,2}$','\1','')
 	" Expand '%'.
 	let inner = 0
 	if file == '%'
 		let file = expand('%:p')
 		let inner = 1
 	endif
-	let row = substitute(line2, '^.\{-}\(:\d\+\)\?\(:\d\+\)\?$','\1','')
-	let row = substitute(row, ':','','')
+	"let row = substitute(line2, '^.\{-}\(:\d\+\)\?\(:\d\+\)\?$','\1','')
+	"let row = substitute(row, ':','','')
 	let row = row == '' ? 0 : row * 1
-	let col = substitute(line2, '^.\{-}:\d\+\(:\d\+\)\?$','\1','')
-	let col = substitute(col, ':','','')
+	"let col = substitute(line2, '^.\{-}:\d\+\(:\d\+\)\?$','\1','')
+	"let col = substitute(col, ':','','')
 	let col = col == '' ? 0 : col * 1
 
 	" Check if file path exists.
@@ -189,7 +191,7 @@ function s:create_link()
 				\ ( line('.') == line('$') ||
 				\ indent('.') >= indent(line('.') + 1 ) ||
 				\ match(getline(line('.') + 1), '^\s*\S.\s*$') == -1)
-		call setline(line('.'), substitute(line, '^\(\s*\)\(_tag_\)\?\(\w\+\)$','\1_tag_\3', ''))
+		call setline(line('.'), substitute(line, '^\(\s*\)\%(_tag_\)\?\(\w\+\)$','\1_tag_\3', ''))
 		call inputsave()
 		let input = input('Linked outline''s path: ', '', 'file')
 		call inputrestore()
