@@ -687,7 +687,7 @@ let s:idx = stridx(s:tmp, ':')
 if s:from_home
 	let s:pluginsdir = 'plugins'
 else
-	let s:pluginsdir = 'vimoutliner/plugins'
+	let s:pluginsdir = 'plugin'
 endif
 
 while (s:idx != -1)
