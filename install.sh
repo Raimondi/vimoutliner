@@ -136,7 +136,7 @@ EOT
 echo -n "Would you like to install these "
 if sure?; then
 	echo installing add-ons
-	copydir add-ons/plugins $vodir/plugins
+	copydir plugin $vodir/plugins
 	copydir add-ons/scripts $vodir/scripts
 fi
 
