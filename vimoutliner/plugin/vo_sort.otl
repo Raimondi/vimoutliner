@@ -1,0 +1,42 @@
+documentation
+	what ?
+		the goal of this plugin is to let you have s simple way to sort the outlines at the same level
+		within one keystropke. Children of these siblings are moved with their aprents and not alterned in any ways.
+		This pkugin is also interesting as a tempate plugin for people who would want to implement custom sort functions
+		with respect of the outlines.
+	how ?
+		you place on one of the siblings you want sorted, and hit ',,s' or ',,S' and there you are, they sorted
+	keys
+		,,s  sort alphanumerically (ascending)
+		,,S  sort alphanumerically (descending)
+	checkboxes
+		at the moment of this writing, checkboxes are taken as literal text when sorting,
+		I need to change that.
+sort status
+	[X] sorting ascending
+	[?] sorting descending
+		[?] jostein patch 
+	[_] sorting checkbox
+		[_] sorting ascending
+			[_] X is <# _
+		[_] sorting descending
+	[_] as a plugin
+		[X] in my vo_base
+		[_] with official one
+test
+	ruth
+		b
+			plaf
+		a
+			plop
+			plip
+		c
+			plouf
+	ruth2
+		[X] b
+			[X] plaf
+		[_] a
+			[_] plop
+			[_] plip
+		[_] c
+			[_] plouf
