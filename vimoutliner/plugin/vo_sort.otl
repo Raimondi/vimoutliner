@@ -14,8 +14,8 @@ documentation
 		I need to change that.
 sort status
 	[X] sorting ascending
-	[?] sorting descending
-		[?] jostein patch 
+	[X] sorting descending
+		[X] jostein patch 
 	[_] sorting checkbox
 		[_] sorting ascending
 			[_] X is <# _
@@ -31,6 +31,8 @@ test
 			plop
 			plip
 		c
+		plop
+		e
 			plouf
 	ruth2
 		[X] b

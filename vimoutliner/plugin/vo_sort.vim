@@ -54,32 +54,24 @@ function! s:FindLastChild(line)
 	return l:searchline-1
 endfunction
 "}}}2
-" DelHead() {{{2
-" Delete a heading
-" Used for sorts and reordering of headings
-function! s:DelHead(line)
+" MoveHead() {{{2
+" Move the heading one heading down
+function! s:MoveHead(line)
 	let l:fstart = foldclosed(a:line)
 	if l:fstart == -1
-		let l:execstr = a:line . "del x"
+		let l:execstr = a:line
 	else
-		let l:fend = foldclosedend(a:line)
-		let l:execstr = l:fstart . "," . l:fend . "del x"
+		let l:execstr = l:fstart . "," . foldclosedend(a:line)
 	endif
-	exec l:execstr
-endfunction
-"}}}2
-" PutHead() {{{2
-" Put a heading
-" Used for sorts and reordering of headings
-function! s:PutHead(line)
+	exec l:execstr . "del x"
+
 	let l:fstart = foldclosed(a:line)
 	if l:fstart == -1
-		let l:execstr = a:line . "put x"
+		let l:execstr = a:line
 	else
-		let l:fend = foldclosedend(a:line)
-		let l:execstr = l:fend . "put x"
+		let l:execstr = foldclosedend(a:line)
 	endif
-	exec l:execstr
+	exec l:execstr . "put x"
 endfunction
 "}}}2
 " NextHead(line) {{{2
@@ -88,31 +80,41 @@ endfunction
 function! s:NextHead(line)
 	let l:fend = foldclosedend(a:line)
 	if l:fend == -1
+		" we are out of the sorted outlines
+		if foldlevel(a:line) != foldlevel(a:line+1)
+			return -1
+		endif
 		return a:line+1
 	endif
 	return l:fend+1
+endfunction
+"}}}2
+" GetHeadContent(line) {{{2
+" get the line contents, removing checkboxes, percent if necesssary
+let g:reCheckBox = "\\[\[^]\]*\\]"
+let g:reCheckBoxContent = "\\[\[^]\]*\\] \\%(\\d*% \\)\\?\\(.*\\)"
+let g:reLineContent = "\\s*\\(.*\\)"
+function! s:GetHeadContent(line)
+	let l:content = getline(a:line)
+	if match(l:content,g:reCheckBox) != -1
+		return matchlist(l:content,g:reCheckBoxContent)[1]
+	endif
+	return matchlist(l:content,g:reLineContent)[1]
 endfunction
 "}}}2
 " CompHead(line) {{{2
 " Compare this heading and the next
 " Return 1: next is greater, 0 next is same, -1 next is less
 function! s:CompHead(line)
-"	let l:thisline=getline(a:line)
-"	let l:nextline=getline(s:NextHead(a:line))
-"	if l:thisline <# l:nextline
-"		return 1
-"	endif
-"	if l:thisline ># l:nextline
-"		return -1
-"	endif
-"	return 0
-"	XXX Israel's modif to test
-	let nexthead = NextHead(a:line)
-	let l:thisline=getline(a:line)
-	let l:nextline=getline(nexthead)
-	if foldlevel(a:line) != foldlevel(nexthead)
+	let l:nexthead = s:NextHead(a:line)
+	echomsg l:nexthead
+	" no more headers in this range, nothing to do
+	if nexthead == -1
 		return 0
-	elseif l:thisline <# l:nextline
+	endif
+	let l:thisline=s:GetHeadContent(a:line)
+	let l:nextline=s:GetHeadContent(l:nexthead)
+	if l:thisline <# l:nextline
 		return 1
 	elseif l:thisline ># l:nextline
 		return -1
@@ -123,17 +125,15 @@ endfunction
 "}}}2
 " Sort1Line(line) {{{2
 " Compare this heading and the next and swap if out of order
-" Dir is 0 for forward, 1 for reverse
+" Dir is 1 for forward, -1 for reverse
 " Return a 1 if a change was made 
 function! s:Sort1Line(line,dir)
-	if (s:CompHead(a:line) == -1) && (a:dir == 0)
-		call s:DelHead(a:line)
-		call s:PutHead(a:line)
-		return 1
+	let l:comphead = s:CompHead(a:line) 
+	if (l:comphead == 0)
+		return 0
 	endif
-	if (s:CompHead(a:line) == 1) && (a:dir == 1)
-		call s:DelHead(a:line)
-		call s:PutHead(a:line)
+	if (l:comphead == -a:dir)
+		call s:MoveHead(a:line)
 		return 1
 	endif
 	return 0
@@ -141,13 +141,13 @@ endfunction
 "}}}2
 " Sort1Pass(start,end,dir) {{{2
 " Compare this heading and the next and swap if out of order
-" Dir is 0 for forward, 1 for reverse
-" Return a 0 if no change was made, otherwise return the change count
+" Dir is 1 for forward, -1 for reverse
+" Return the change count
 function! s:Sort1Pass(fstart,fend,dir)
 	let l:i = a:fstart
 	let l:changed = 0
 	while l:i < a:fend
-		let l:changed = l:changed + s:Sort1Line(l:i,a:dir)
+		let l:changed += s:Sort1Line(l:i,a:dir)
 		let l:i = s:NextHead(l:i)
 	endwhile
 	return l:changed
@@ -187,7 +187,8 @@ endfunction
 "}}}1
 " Key Mappings {{{1
 " sort a list naturally
-map <buffer> <localleader>s :call SortChildren(0)<cr>
+map <buffer> <localleader>s :call SortChildren(1)<cr>
 " sort a list, but you supply the options
-map <buffer> <localleader>S :call SortChildren(1)<cr>
+map <buffer> <localleader>S :call SortChildren(-1)<cr>
 "}}}1
+" vim:set fdm=marker:
