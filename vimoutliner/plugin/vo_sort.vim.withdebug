@@ -78,10 +78,13 @@ endfunction
 " Return line of next heanding
 " Used for sorts and reordering of headings
 function! s:NextHead(line)
+	echomsg "   XXX Next for ".a:line
 	let l:fend = foldclosedend(a:line)
 	if l:fend == -1
+	echomsg "   XXX Next is (line)".(a:line+1)
 		return a:line+1
 	endif
+	echomsg "   XXX Next is (fold)".(l:fend+1)
 	return l:fend+1
 endfunction
 "}}}2
@@ -103,16 +106,22 @@ endfunction
 " Return 1: next is greater, 0 next is same, -1 next is less
 function! s:CompHead(line,nexthead)
 	" no more headers in this range, nothing to do
+	echomsg "XXX ??? '".a:line."' / '".a:nexthead."'"
 	if (a:line <= 0) || (a:nexthead <= 0)
 		return 0
 	endif
 	let l:thisline=s:GetHeadContent(a:line)
 	let l:nextline=s:GetHeadContent(a:nexthead)
+	echomsg "XXX --- ".a:line    ." : ".l:thisline
+	echomsg "XXX +++ ".a:nexthead." : ".l:nextline
 	if l:thisline <# l:nextline
+	echomsg "XXX === -1"
 		return -1
 	elseif l:thisline ># l:nextline
+	echomsg "XXX === 1"
 		return 1
 	else
+	echomsg "XXX === 0"
 		return 0
 	endif
 endfunction
@@ -122,14 +131,17 @@ endfunction
 " Dir is 1 for forward, -1 for reverse
 " Return a 1 if a change was made 
 function! s:Sort1Line(line,dir,max)
+	echomsg "XXX Sort1Line -1"
 	let l:nexthead = s:NextHead(a:line)
 	if (l:nexthead > a:max)
 		return 0
 	endif
+	echomsg "XXX Sort1Line 0"
 	let l:comphead = s:CompHead(a:line,l:nexthead) 
 	if (l:comphead == 0)
 		return 0
 	endif
+	echomsg "XXX Sort1Line 1"
 	if (l:comphead == a:dir)
 		call s:MoveHead(a:line)
 		return 1
@@ -142,9 +154,11 @@ endfunction
 " Dir is 1 for forward, -1 for reverse
 " Return the change count
 function! s:Sort1Pass(fstart,fend,dir)
+	echomsg "XXX Sort1Pass 0"
 	let l:i = a:fstart
 	let l:changed = 0
 	while l:i < a:fend
+	echomsg "XXX Sort1Pass 1 : ".l:i."/".a:fend
 		let l:changed += s:Sort1Line(l:i,a:dir,a:fend)
 		let l:i = s:NextHead(l:i)
 	endwhile
@@ -155,8 +169,10 @@ endfunction
 " Sort this range of headings
 " dir: 0 = ascending, 1 = decending 
 function! s:SortRange(fstart,fend,dir)
+	echomsg "XXX SortRange 0"
 	let l:changed = 1
 	while l:changed != 0
+	echomsg "XXX SortRange 1 : ".l:changed
 		let l:changed = s:Sort1Pass(a:fstart,a:fend,a:dir)
 	endwhile
 endfunction
@@ -165,6 +181,7 @@ endfunction
 " Sort the children of a parent 
 " dir: 0 = ascending, 1 = decending 
 function! SortChildren(dir)
+	echomsg "XXX SortChildren 0"
 	let l:oldcursor = line(".")
 	let l:fstart = s:FindParent(line("."))
 	let l:fend = s:FindLastChild(l:fstart)
@@ -180,6 +197,7 @@ function! SortChildren(dir)
 	del x
 	loadview
 	call cursor(l:oldcursor,0)
+	echomsg "XXX SortChildren 1"
 endfunction
 "}}}2
 "}}}1
